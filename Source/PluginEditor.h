@@ -11,6 +11,8 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "ui/LM_slider.h"
+#include "ui/EnveUI.h"
+
 //==============================================================================
 /**
 */
@@ -29,8 +31,9 @@ private:
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	LModelAudioProcessor& audioProcessor;
-
 	LMKnob K_LT, K_RT, K_TP, K_FB;
+	EnveUI enveUI{ &audioProcessor.enveFunc };
+
 	juce::ComponentBoundsConstrainer constrainer;  // 用于设置宽高比例
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LModelAudioProcessorEditor)
 };

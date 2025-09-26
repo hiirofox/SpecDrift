@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stft.h"
+#include "envefunc.h"
 
 class FastSin
 {
@@ -162,7 +163,7 @@ public:
 	{
 		for (int i = 0; i < numBins; ++i)
 		{
-			float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//单位:sample
+			float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//碌楼脦禄:sample
 			int inGroup = t1 / hopSize;
 			float t = t1 - inGroup * hopSize;
 
@@ -229,14 +230,17 @@ private:
 	float ldelay = 0, rdelay = 0, t0 = 0, fb = 0;
 	FastSin fs;
 
+	EnveFunc* ef = NULL;
 public:
-	SpecDrift2()
+	SpecDrift2(EnveFunc* envefunc)
 	{
 		UpdateWindow();
 		inre.resize(FFTLen, 0);
 		inim.resize(FFTLen, 0);
 		outre.resize(FFTLen);
 		outim.resize(FFTLen);
+
+		this->ef = envefunc;
 
 		memset(outbuf, 0, sizeof(float) * FFTLen);
 		memset(inbuf, 0, sizeof(float) * FFTLen);
@@ -300,7 +304,8 @@ public:
 	{
 		for (int i = 0; i < numBins; ++i)
 		{
-			float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//单位:sample
+			//float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//碌楼脦禄:sample
+			float t1 = ldelay + (rdelay - ldelay) * ef->func((float)i / numBins);
 			int inGroup = t1 / hopSize;
 			float t = t1 - inGroup * hopSize;
 

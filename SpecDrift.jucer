@@ -8,11 +8,14 @@
         <FILE id="VWjs7t" name="fft.h" compile="0" resource="0" file="Source/dsp/fft.h"/>
         <FILE id="MMAUXk" name="stft.h" compile="0" resource="0" file="Source/dsp/stft.h"/>
         <FILE id="pDZ2VW" name="specDrift.h" compile="0" resource="0" file="Source/dsp/specDrift.h"/>
+        <FILE id="wwOtA0" name="EnveFunc.h" compile="0" resource="0" file="Source/dsp/EnveFunc.h"/>
         <FILE id="rUEdNY" name="fft.cpp" compile="1" resource="0" file="Source/dsp/fft.cpp"/>
       </GROUP>
       <GROUP id="{3BB1F35A-678F-CEEE-940B-F6F9EEBE86A9}" name="ui">
         <FILE id="digt4E" name="LM_slider.cpp" compile="1" resource="0" file="Source/ui/LM_slider.cpp"/>
         <FILE id="UQWqWh" name="LM_slider.h" compile="0" resource="0" file="Source/ui/LM_slider.h"/>
+        <FILE id="vhD7bt" name="EnveUI.h" compile="0" resource="0" file="Source/ui/EnveUI.h"/>
+        <FILE id="hiSHfa" name="EnveUI.cpp" compile="1" resource="0" file="Source/ui/EnveUI.cpp"/>
       </GROUP>
       <FILE id="RYU4o9" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

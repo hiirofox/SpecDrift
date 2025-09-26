@@ -682,6 +682,9 @@
     <ClCompile Include="..\..\Source\ui\LM_slider.cpp">
       <Filter>SpecDrift\Source\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\ui\EnveUI.cpp">
+      <Filter>SpecDrift\Source\ui</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp">
       <Filter>SpecDrift\Source</Filter>
     </ClCompile>
@@ -3552,7 +3555,13 @@
     <ClInclude Include="..\..\Source\dsp\specDrift.h">
       <Filter>SpecDrift\Source\dsp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\dsp\EnveFunc.h">
+      <Filter>SpecDrift\Source\dsp</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\LM_slider.h">
+      <Filter>SpecDrift\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\EnveUI.h">
       <Filter>SpecDrift\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PluginProcessor.h">

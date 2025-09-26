@@ -21,7 +21,7 @@ LModelAudioProcessorEditor::LModelAudioProcessorEditor(LModelAudioProcessor& p)
 
 	//setResizeLimits(64 * 11, 64 * 5, 10000, 10000); // 设置最小宽高为300x200，最大宽高为800x600
 	setSize(64 * 13, 64 * 4);
-	setResizeLimits(64 * 4, 64 * 4, 64 * 13, 64 * 4);
+	setResizeLimits(64 * 4, 64 * 4, 64 * 13, 64 * 8);
 
 	//constrainer.setFixedAspectRatio(11.0 / 4.0);  // 设置为16:9比例
 	//setConstrainer(&constrainer);  // 绑定窗口的宽高限制
@@ -38,6 +38,8 @@ LModelAudioProcessorEditor::LModelAudioProcessorEditor(LModelAudioProcessor& p)
 	K_FB.setText("fb");
 	K_FB.ParamLink(audioProcessor.GetParams(), "fb");
 	addAndMakeVisible(K_FB);
+
+	addAndMakeVisible(enveUI);
 
 	startTimerHz(30);
 
@@ -67,10 +69,12 @@ void LModelAudioProcessorEditor::resized()
 	int x = bound.getX(), y = bound.getY(), w = bound.getWidth(), h = bound.getHeight();
 	auto convXY = juce::Rectangle<int>::leftTopRightBottom;
 
-	K_LT.setBounds(32 + 64 * 0, 32 + 64 * 0, 64, 64);
-	K_RT.setBounds(32 + 64 * 1, 32 + 64 * 0, 64, 64);
-	K_TP.setBounds(32 + 64 * 2, 32 + 64 * 0, 64, 64);
-	K_FB.setBounds(32 + 64 * 3, 32 + 64 * 0, 64, 64);
+	enveUI.setBounds(32, 32, w - 64, h - 64 - 64 - 24);
+
+	K_LT.setBounds(32 + 64 * 0, h - 32 - 64, 64, 64);
+	K_RT.setBounds(32 + 64 * 1, h - 32 - 64, 64, 64);
+	K_TP.setBounds(32 + 64 * 2, h - 32 - 64, 64, 64);
+	K_FB.setBounds(32 + 64 * 3, h - 32 - 64, 64, 64);
 }
 
 void LModelAudioProcessorEditor::timerCallback()

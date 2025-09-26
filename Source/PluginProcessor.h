@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "dsp/specDrift.h"
+#include "dsp/EnveFunc.h"
 //==============================================================================
 /**
 */
@@ -61,11 +62,13 @@ public:
 		return Params;
 	}
 
+	EnveFunc enveFunc;
+
 private:
 	//Synth Param
 	static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 	juce::AudioProcessorValueTreeState Params{ *this, nullptr, "Parameters", createParameterLayout() };
-	SpecDrift2 stftl, stftr;
+	SpecDrift2 stftl{ &enveFunc }, stftr{ &enveFunc };
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LModelAudioProcessor)
 };
