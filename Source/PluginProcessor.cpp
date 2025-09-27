@@ -33,7 +33,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout LModelAudioProcessor::create
 	layout.add(std::make_unique<juce::AudioParameterFloat>("lt", "lt", 0, 1, 0));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("rt", "rt", 0, 1, 0));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("tp", "tp", 0, 1, 0));
-	layout.add(std::make_unique<juce::AudioParameterFloat>("fb", "fb", 0, 1, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("fb", "fb", -1, 1, 0));
 	return layout;
 }
 
@@ -96,7 +96,7 @@ void LModelAudioProcessor::setCurrentProgram(int index)
 
 const juce::String LModelAudioProcessor::getProgramName(int index)
 {
-	return "Virbon";
+	return "SpecDrift";
 }
 
 void LModelAudioProcessor::changeProgramName(int index, const juce::String& newName)

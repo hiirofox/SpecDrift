@@ -302,7 +302,9 @@ public:
 		std::vector<float>& outre, std::vector<float>& outim,
 		int numBins, int hopSize)
 	{
-		for (int i = 0; i < numBins; ++i)
+		outre[0] = 0;
+		outim[0] = 0;
+		for (int i = 1; i < numBins; ++i)
 		{
 			//float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//µ¥Î»:sample
 			float t1 = ldelay + (rdelay - ldelay) * ef->func((float)i / numBins);
@@ -317,13 +319,39 @@ public:
 
 			float lastre = delayre[dlypos][i];
 			float lastim = delayim[dlypos][i];
+			delayre[dlypos][i] = 0;
+			delayim[dlypos][i] = 0;
 
 			float lvre = lastre * mulre - lastim * mulim;
 			float lvim = lastre * mulim + lastim * mulre;
 
-			delayre[(dlypos + inGroup) % NumGroups][i] = rev + lvre * fb;
-			delayim[(dlypos + inGroup) % NumGroups][i] = imv + lvim * fb;
+			if (inGroup >= 1)
+			{
+				delayre[(dlypos + inGroup) % NumGroups][i] = rev + lvre * fb;
+				delayim[(dlypos + inGroup) % NumGroups][i] = imv + lvim * fb;
+			}
+			else
+			{
+				//处理小于hopsize的延迟和反馈
+				//我觉得最终还会用到dlypos+1的延迟，毕竟反馈是无限冲激响应的
 
+				float weight = t / hopSize;  
+				float direct_re = rev * (1.0f - weight);
+				float direct_im = imv * (1.0f - weight);
+				float delayed_re = rev * weight;
+				float delayed_im = imv * weight;
+				float fb_re = lvre * fb;
+				float fb_im = lvim * fb;
+				float current_fb_re = fb_re * (1.0f - weight);
+				float current_fb_im = fb_im * (1.0f - weight);
+				float next_fb_re = fb_re * weight;
+				float next_fb_im = fb_im * weight;
+				lastre = direct_re + current_fb_re;
+				lastim = direct_im + current_fb_im;
+				int next_pos = (dlypos + 1) % NumGroups;
+				delayre[next_pos][i] += delayed_re + next_fb_re;
+				delayim[next_pos][i] += delayed_im + next_fb_im;
+			}
 
 			outre[i] = lastre;
 			outim[i] = lastim;
