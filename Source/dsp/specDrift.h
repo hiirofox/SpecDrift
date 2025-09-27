@@ -227,7 +227,7 @@ private:
 	std::vector<float> outre, outim;//groups
 
 
-	float ldelay = 0, rdelay = 0, t0 = 0, fb = 0;
+	float ldelay = 0, rdelay = 0, t0 = 0, fb = 0, pw = 0;
 	FastSin fs;
 
 	EnveFunc* ef = NULL;
@@ -307,7 +307,9 @@ public:
 		for (int i = 1; i < numBins; ++i)
 		{
 			//float t1 = ldelay + (rdelay - ldelay) * ((float)i / numBins);//µ¥Î»:sample
-			float t1 = ldelay + (rdelay - ldelay) * ef->func((float)i / numBins);
+			float x = (float)i / numBins;
+			if (fabs(pw) > 0.001) x = (expf(x * pw) - 1.0) / (expf(pw) - 1.0);
+			float t1 = ldelay + (rdelay - ldelay) * ef->func(x);
 			int inGroup = t1 / hopSize;
 			float t = t1 - inGroup * hopSize;
 
@@ -335,7 +337,7 @@ public:
 				//处理小于hopsize的延迟和反馈
 				//我觉得最终还会用到dlypos+1的延迟，毕竟反馈是无限冲激响应的
 
-				float weight = t / hopSize;  
+				float weight = t / hopSize;
 				float direct_re = rev * (1.0f - weight);
 				float direct_im = imv * (1.0f - weight);
 				float delayed_re = rev * weight;
@@ -360,11 +362,12 @@ public:
 		if (dlypos >= NumGroups) dlypos = 0;
 	}
 
-	void SetDelay(float ldelay, float rdelay, float t0, float fb)
+	void SetDelay(float ldelay, float rdelay, float t0, float fb, float pw)
 	{
 		this->ldelay = ldelay * hopSize * NumGroups;
 		this->rdelay = rdelay * hopSize * NumGroups;
 		this->t0 = t0 * hopSize;
 		this->fb = fb;
+		this->pw = pw;
 	}
 };

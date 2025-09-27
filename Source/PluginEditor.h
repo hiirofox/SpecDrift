@@ -31,7 +31,7 @@ private:
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	LModelAudioProcessor& audioProcessor;
-	LMKnob K_LT, K_RT, K_TP, K_FB;
+	LMKnob K_LT, K_RT, K_FB, K_POW;
 	EnveUI enveUI{ &audioProcessor.enveFunc };
 
 	juce::ComponentBoundsConstrainer constrainer;  // 用于设置宽高比例

@@ -31,9 +31,9 @@ juce::AudioProcessorValueTreeState::ParameterLayout LModelAudioProcessor::create
 {
 	juce::AudioProcessorValueTreeState::ParameterLayout layout;
 	layout.add(std::make_unique<juce::AudioParameterFloat>("lt", "lt", 0, 1, 0));
-	layout.add(std::make_unique<juce::AudioParameterFloat>("rt", "rt", 0, 1, 0));
-	layout.add(std::make_unique<juce::AudioParameterFloat>("tp", "tp", 0, 1, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("rt", "rt", 0, 1, 0.5));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("fb", "fb", -1, 1, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("pow", "pow", -8, 8, 0));
 	return layout;
 }
 
@@ -171,11 +171,14 @@ void LModelAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
 
 	float lt = *Params.getRawParameterValue("lt");
 	float rt = *Params.getRawParameterValue("rt");
-	float tp = *Params.getRawParameterValue("tp");
 	float fb = *Params.getRawParameterValue("fb");
+	float pw = *Params.getRawParameterValue("pow");
 
-	stftl.SetDelay(lt, rt, tp, fb);
-	stftr.SetDelay(lt, rt, tp, fb);
+	lt = (expf(lt * 8.0) - 1.0) / (expf(8.0) - 1.0);
+	rt = (expf(rt * 8.0) - 1.0) / (expf(8.0) - 1.0);
+
+	stftl.SetDelay(lt, rt, 0, fb, pw);
+	stftr.SetDelay(lt, rt, 0, fb, pw);
 
 	stftl.ProcessBlock(recbufl, wavbufl, numSamples);
 	stftr.ProcessBlock(recbufr, wavbufr, numSamples);
@@ -195,33 +198,44 @@ juce::AudioProcessorEditor* LModelAudioProcessor::createEditor()
 }
 
 //==============================================================================
-
 void LModelAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-	// You should use this method to store your parameters in the memory block.
-	// You could do that either as raw data, or use the XML or ValueTree classes
-	// as intermediaries to make it easy to save and load complex data.
-
 	// 创建一个 XML 节点
 	juce::XmlElement xml("LMEQ_Settings");
 
+	// 保存包络数据 - 使用XML方式（推荐，更安全）
+	auto envelopeXml = enveFunc.saveToXml();
+	if (envelopeXml) {
+		xml.addChildElement(envelopeXml.release());
+	}
+
+	// 或者使用二进制方式保存包络数据（更紧凑）
+	/*
+	juce::MemoryBlock envelopeDataBlock;
+	enveFunc.saveToBinary(envelopeDataBlock);
+	if (envelopeDataBlock.getSize() > 0) {
+		juce::String base64EnvelopeData = envelopeDataBlock.toBase64Encoding();
+		xml.setAttribute("ENVELOPE_DATA", base64EnvelopeData);
+	}
+	*/
+
+	// 保存其他数据
 	/*juce::MemoryBlock eqDataBlock;
 	eqDataBlock.append(&manager, sizeof(ResonatorManager));
 	juce::String base64Data = eqDataBlock.toBase64Encoding();
-	xml.setAttribute("VIB_MANAGER", base64Data);//添加resonance数据
-	*/
-	auto state = Params.copyState();
-	xml.setAttribute("Knob_Data", state.toXmlString());//添加旋钮数据
+	xml.setAttribute("VIB_MANAGER", base64Data);*/
 
+	auto state = Params.copyState();
+	xml.setAttribute("Knob_Data", state.toXmlString());
+
+	// 转换为字符串并保存
 	juce::String xmlString = xml.toString();
 	destData.append(xmlString.toRawUTF8(), xmlString.getNumBytesAsUTF8());
 }
 
 void LModelAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-	// You should use this method to restore your parameters from this memory block,
-	// whose contents will have been created by the getStateInformation() call.
-	  // 将 data 转换为字符串以解析 XML
+	// 将 data 转换为字符串以解析 XML
 	juce::String xmlString(static_cast<const char*>(data), sizeInBytes);
 
 	// 解析 XML
@@ -232,6 +246,38 @@ void LModelAudioProcessor::setStateInformation(const void* data, int sizeInBytes
 		return;
 	}
 
+	// 加载包络数据 - 使用XML方式
+	auto* envelopeXml = xml->getChildByName("EnvelopeData");
+	if (envelopeXml) {
+		bool success = enveFunc.loadFromXml(envelopeXml);
+		if (!success) {
+			DBG("Warning: Failed to load envelope data, using default");
+			enveFunc.resetToDefault();
+		}
+	}
+	else {
+		// 如果没有找到包络数据，重置为默认值
+		enveFunc.resetToDefault();
+	}
+
+	// 或者使用二进制方式加载包络数据
+	/*
+	juce::String base64EnvelopeData = xml->getStringAttribute("ENVELOPE_DATA");
+	if (base64EnvelopeData.isNotEmpty()) {
+		juce::MemoryBlock envelopeDataBlock;
+		if (envelopeDataBlock.fromBase64Encoding(base64EnvelopeData)) {
+			bool success = enveFunc.loadFromBinary(envelopeDataBlock);
+			if (!success) {
+				DBG("Warning: Failed to load envelope data, using default");
+				enveFunc.resetToDefault();
+			}
+		}
+	} else {
+		enveFunc.resetToDefault();
+	}
+	*/
+
+	// 加载其他数据
 	/*
 	juce::String base64Data = xml->getStringAttribute("VIB_MANAGER");
 	juce::MemoryBlock eqDataBlock;
@@ -241,8 +287,11 @@ void LModelAudioProcessor::setStateInformation(const void* data, int sizeInBytes
 		std::memcpy(&manager, eqDataBlock.getData(), sizeof(ResonatorManager));
 	}
 	*/
+
 	auto KnobDataXML = xml->getStringAttribute("Knob_Data");
-	Params.replaceState(juce::ValueTree::fromXml(KnobDataXML));
+	if (KnobDataXML.isNotEmpty()) {
+		Params.replaceState(juce::ValueTree::fromXml(KnobDataXML));
+	}
 }
 
 //==============================================================================
