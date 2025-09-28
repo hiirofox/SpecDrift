@@ -35,7 +35,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout LModelAudioProcessor::create
 	layout.add(std::make_unique<juce::AudioParameterFloat>("fb", "fb", -1, 1, 0));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("pow", "pow", -8, 8, 0));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("bbr", "bbr", -1, 1, 0));
-	layout.add(std::make_unique<juce::AudioParameterFloat>("dry", "dry", 0, 1, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("dry", "dry", 0, 0.5, 0));
 	return layout;
 }
 
@@ -182,7 +182,12 @@ void LModelAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
 	lt = (expf(lt * 8.0) - 1.0) / (expf(8.0) - 1.0);
 	rt = (expf(rt * 8.0) - 1.0) / (expf(8.0) - 1.0);
 
-	bbr = bbr * 0.01;
+	float bbrsign = bbr > 0 ? 1 : -1;
+	bbr *= bbrsign;
+	bbr = (expf(bbr * 8.0) - 1.0) / (expf(8.0) - 1.0);
+	bbr *= bbrsign;
+
+	if (fb < 0)dry = -dry;
 
 	stftl.SetDelay(lt, rt, 0, fb, pw, bbr, dry);
 	stftr.SetDelay(lt, rt, 0, fb, pw, bbr, dry);

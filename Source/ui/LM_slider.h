@@ -49,42 +49,88 @@ public:
 	void drawPopupMenuBackground(juce::Graphics& g, int width, int height) override;//»­²Ëµ¥¿ò¿ò
 
 private:
-};
-
-
-class Custom1_Slider : public juce::Slider//°´ÏÂ¾ÍÒþ²ØÊó±êÖ¸ÕëµÄSlider
+};// Enhanced Custom1_Slider class
+class Custom1_Slider : public juce::Slider
 {
 public:
+    Custom1_Slider() : juce::Slider() {}
+    
+    // Add right-click menu functionality
+    void mouseDown(const juce::MouseEvent& event) override;
+    void mouseUp(const juce::MouseEvent& event) override;
+    void mouseDrag(const juce::MouseEvent& event) override;
+    
+    // Add callbacks
+    std::function<void(const juce::MouseEvent&)> onRightClickRequested;
+    std::function<void()> onDragStart;
+    std::function<void()> onDragEnd;
+    
 protected:
-	void mouseDown(const juce::MouseEvent& event) override;
-	void mouseUp(const juce::MouseEvent& event) override;
 private:
-	juce::Point<float> lastMousePosition;
+    juce::Point<float> lastMousePosition;
 };
-class LMKnob :public juce::Component//ÐýÅ¥Àà
+
+// Custom clickable label class
+class ClickableLabel : public juce::Label
 {
 public:
-	LMKnob();
+    ClickableLabel() : juce::Label() {}
+    
+    void mouseDown(const juce::MouseEvent& event) override
+    {
+        if (event.mods.isLeftButtonDown() && onClick)
+        {
+            onClick();
+        }
+        juce::Label::mouseDown(event);
+    }
+    
+    std::function<void()> onClick;
+};
 
-	~LMKnob();
-	void paint(juce::Graphics& g) override;
-	juce::Slider& getSlider()
-	{
-		return slider;
-	}
-	void ParamLink(juce::AudioProcessorValueTreeState& stateToUse, const juce::String& parameterID);
-
-	void setText(const juce::String& KnobText);
-	void resized() override;
-	void setPos(int x, int y);//´úÌæsetBounds£¬¿ÉÒÔÉÙ´ò¼¸¸ö×Ö
-
+class LMKnob : public juce::Component
+{
+public:
+    LMKnob();
+    ~LMKnob();
+    void paint(juce::Graphics& g) override;
+    juce::Slider& getSlider() { return slider; }
+    void ParamLink(juce::AudioProcessorValueTreeState& stateToUse, const juce::String& parameterID);
+    void setText(const juce::String& KnobText,const juce::String& unit);
+    void resized() override;
+    void setPos(int x, int y);
+    
+    // New methods for value display and input
+    void updateValueDisplay();
+    void showValueInputDialog();
+    void showDescription();
+    void showValueLabel();
+    void hideValueLabel();
+    
+    // Timer callback for hiding value label
+	void SetDescription(const juce::String& description) { paramDescription = description; }
+    
 private:
-	std::unique_ptr<L_MODEL_STYLE> L_MODEL_STYLE_LOOKANDFEEL;
-	std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ParamLinker;
-	//juce::Slider slider;
-	Custom1_Slider slider;
-	juce::Label label;
-	juce::String text;
+    std::unique_ptr<L_MODEL_STYLE> L_MODEL_STYLE_LOOKANDFEEL;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> ParamLinker;
+    Custom1_Slider slider;
+    ClickableLabel label;  // Changed to ClickableLabel so it can be clicked
+    juce::Label valueLabel;  // Changed back to regular Label
+    juce::String text;
+    juce::String unitText = "";
+
+    // Value input dialog
+    std::unique_ptr<juce::AlertWindow> valueInputWindow;
+    
+    // Value label visibility state
+    bool valueVisible = false;
+    
+    // Mouse event handlers
+    void labelClicked();
+
+    void LMKnob::showRightClickMenu(const juce::Point<int>& position);  // Changed to take MouseEvent directly
+
+    juce::String paramDescription = "No description.";
 };
 
 

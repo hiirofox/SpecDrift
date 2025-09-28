@@ -72,44 +72,44 @@ void L_MODEL_STYLE::drawToggleButton(juce::Graphics& g, juce::ToggleButton& butt
 
 void L_MODEL_STYLE::drawComboBox(juce::Graphics& g, int width, int height, bool isButtonDown, int buttonX, int buttonY, int buttonWidth, int buttonHeight, juce::ComboBox& box)
 {
-		int x = box.getX(), y = box.getY(), w = box.getWidth(), h = box.getHeight();
-		if (isButtonDown)//Èç¹ûÊó±ê¿¿½ü
-		{
-			g.setColour(juce::Colour(0x22, 0x22, 0x44));
-			g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
-		}
+	int x = box.getX(), y = box.getY(), w = box.getWidth(), h = box.getHeight();
+	if (isButtonDown)//Èç¹ûÊó±ê¿¿½ü
+	{
+		g.setColour(juce::Colour(0x22, 0x22, 0x44));
+		g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
+	}
 
-		g.setColour(juce::Colour(0x77, 0x77, 0xEE));
-		g.drawLine(x, y, x + w, y, 4);//»­¿ò
-		g.drawLine(x, y, x, y + h, 4);
-		g.drawLine(x + w, y + h, x + w, y, 4);
-		g.drawLine(x + w, y + h, x, y + h, 4);
+	g.setColour(juce::Colour(0x77, 0x77, 0xEE));
+	g.drawLine(x, y, x + w, y, 4);//»­¿ò
+	g.drawLine(x, y, x, y + h, 4);
+	g.drawLine(x + w, y + h, x + w, y, 4);
+	g.drawLine(x + w, y + h, x, y + h, 4);
 
-		/*
-		g.setColour(juce::Colour(0x77, 0xff, 0x77));
-		juce::String name = box.getText();
-		g.setFont(juce::Font("FIXEDSYS", 15.0, 0));
-		g.drawText(name, x + 8, y, w - 8, h, juce::Justification::centredLeft);
-		*/
+	/*
+	g.setColour(juce::Colour(0x77, 0xff, 0x77));
+	juce::String name = box.getText();
+	g.setFont(juce::Font("FIXEDSYS", 15.0, 0));
+	g.drawText(name, x + 8, y, w - 8, h, juce::Justification::centredLeft);
+	*/
 }
 
 void L_MODEL_STYLE::drawPopupMenuItem(juce::Graphics& g, const juce::Rectangle<int>& area, const bool isSeparator, const bool isActive, const bool isHighlighted, const bool isTicked, const bool hasSubMenu, const juce::String& text, const juce::String& shortcutKeyText, const juce::Drawable* icon, const juce::Colour* textColour)
+{
+	int x = area.getX(), y = area.getY(), w = area.getWidth(), h = area.getHeight();
+	if (isTicked)//Èç¹û°´ÏÂ
 	{
-		int x = area.getX(), y = area.getY(), w = area.getWidth(), h = area.getHeight();
-		if (isTicked)//Èç¹û°´ÏÂ
-		{
-			g.setColour(juce::Colour(0x44, 0x44, 0x88));
-			g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
-		}
-		else if (isHighlighted)//Èç¹ûÊó±ê¿¿½ü
-		{
-			g.setColour(juce::Colour(0x22, 0x22, 0x44));
-			g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
-		}
+		g.setColour(juce::Colour(0x44, 0x44, 0x88));
+		g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
+	}
+	else if (isHighlighted)//Èç¹ûÊó±ê¿¿½ü
+	{
+		g.setColour(juce::Colour(0x22, 0x22, 0x44));
+		g.fillRect(x + 2, y, w - 4, h);//»­Ìî³ä¾ØÐÎ
+	}
 
-		g.setColour(juce::Colour(0x77, 0xff, 0x77));
-		g.setFont(juce::Font("FIXEDSYS", 15.0, 0));
-		g.drawText(text, x + 8, y, w - 8, h, juce::Justification::centredLeft);
+	g.setColour(juce::Colour(0x77, 0xff, 0x77));
+	g.setFont(juce::Font("FIXEDSYS", 15.0, 0));
+	g.drawText(text, x + 8, y, w - 8, h, juce::Justification::centredLeft);
 }
 
 void L_MODEL_STYLE::drawPopupMenuBackground(juce::Graphics& g, int width, int height)
@@ -124,6 +124,14 @@ void L_MODEL_STYLE::drawPopupMenuBackground(juce::Graphics& g, int width, int he
 
 void Custom1_Slider::mouseDown(const juce::MouseEvent& event)
 {
+	if (event.mods.isRightButtonDown())
+	{
+		// Trigger right-click menu with event
+		if (onRightClickRequested)
+			onRightClickRequested(event);
+		return;
+	}
+
 	lastMousePosition = event.source.getScreenPosition();
 	setMouseCursor(juce::MouseCursor::NoCursor);
 	juce::Slider::mouseDown(event);
@@ -131,77 +139,239 @@ void Custom1_Slider::mouseDown(const juce::MouseEvent& event)
 
 void Custom1_Slider::mouseUp(const juce::MouseEvent& event)
 {
-	juce::Desktop::getInstance().getMainMouseSource().setScreenPosition(lastMousePosition);
-	setMouseCursor(juce::MouseCursor::NormalCursor);
+	if (!event.mods.isRightButtonDown())
+	{
+		juce::Desktop::getInstance().getMainMouseSource().setScreenPosition(lastMousePosition);
+		setMouseCursor(juce::MouseCursor::NormalCursor);
+
+		// Notify drag end
+		if (onDragEnd)
+			onDragEnd();
+	}
 	juce::Slider::mouseUp(event);
 }
 
-LMKnob::LMKnob() :slider(), label()
+void Custom1_Slider::mouseDrag(const juce::MouseEvent& event)
 {
+	if (!event.mods.isRightButtonDown())
+	{
+		// Notify drag start on first drag
+		static bool isDragging = false;
+		if (!isDragging && onDragStart)
+		{
+			onDragStart();
+			isDragging = true;
+		}
+
+		juce::Slider::mouseDrag(event);
+
+		// Reset dragging flag when mouse is released
+		if (event.mouseWasClicked())
+			isDragging = false;
+	}
+}
+
+LMKnob::LMKnob() : slider(), label(), valueLabel()
+{
+	// Setup slider
 	slider.setSliderStyle(juce::Slider::RotaryVerticalDrag);
 	slider.setTextBoxStyle(juce::Slider::NoTextBox, false, 0, 0);
 	L_MODEL_STYLE_LOOKANDFEEL = std::make_unique<L_MODEL_STYLE>();
-	slider.setLookAndFeel(L_MODEL_STYLE_LOOKANDFEEL.get());//Ó¦ÓÃl-model·ç¸ñ
-	label.setJustificationType(juce::Justification::centredTop);
-	label.setFont(juce::Font("FIXEDSYS", 15.0, 0));
-	label.setMinimumHorizontalScale(1.0);//²»Ëõ·Å×ÖÌå
-	label.setColour(juce::Label::textColourId, juce::Colour(0x77, 0xff, 0x77));
-	label.setFont(label.getFont().withStyle(juce::Font::bold));//ÉèÖÃ´ÖÌå
-	/*
-	slider.onValueChange = [this]
-	{
-		this->repaint(-64, -64, 128, 128);
-	};
-	slider.setInterceptsMouseClicks(true, true);//Ê¹µÃsliderÔÚ×é¼þÍâµÄÇøÓòÒ²ÄÜ½ÓÊÕÊó±êÊÂ¼þ
-	*/
-	setPaintingIsUnclipped(true);//×é¼þÎÞ±ß½ç
-	setOpaque(false);//×é¼þºÚÉ«²¿·ÖÍ¸Ã÷
+	slider.setLookAndFeel(L_MODEL_STYLE_LOOKANDFEEL.get());
 
+	// Setup main label (knob name) - now clickable
+	label.setJustificationType(juce::Justification::centredTop);
+	label.setFont(juce::Font("fixedsys", 16.0, 0));
+	label.setMinimumHorizontalScale(1.0);
+	label.setColour(juce::Label::textColourId, juce::Colour(0x77, 0xff, 0x77));
+	label.setFont(label.getFont().withStyle(juce::Font::bold));
+
+	// Make main label clickable
+	label.setInterceptsMouseClicks(true, false);
+	label.onClick = [this]()
+		{
+			labelClicked();
+		};
+
+	// Setup value label (parameter value display) - initially hidden
+	valueLabel.setJustificationType(juce::Justification::centred);
+	valueLabel.setFont(juce::Font("fixedsys", 12.0, 0));
+	valueLabel.setMinimumHorizontalScale(1.0);
+	valueLabel.setColour(juce::Label::textColourId, juce::Colour(0xff00ffff));
+	valueLabel.setFont(valueLabel.getFont().withStyle(juce::Font::bold));
+	valueLabel.setVisible(false);  // Initially hidden
+
+	// Setup slider callbacks
+	slider.onValueChange = [this]
+		{
+			updateValueDisplay();
+			this->repaint();
+		};
+	//todo::onLeftClick
+
+	// Setup drag start callback to show value label
+	slider.onDragStart = [this]()
+		{
+			showValueLabel();
+		};
+
+	// Setup drag end callback to start hide timer
+	slider.onDragEnd = [this]()
+		{
+			hideValueLabel();
+		};
+
+	// Setup right-click menu for slider
+	slider.onRightClickRequested = [this](const juce::MouseEvent& event)
+		{
+			auto compPos = event.position.toInt();
+			showRightClickMenu(compPos + getScreenPosition().toInt() + juce::Point<int>{8, 32});
+
+		};
+
+	setPaintingIsUnclipped(true);
+	setOpaque(false);
 	addAndMakeVisible(slider);
 	addAndMakeVisible(label);
+	addAndMakeVisible(valueLabel);
+
+	// Initialize value display
+	updateValueDisplay();
 }
+
 
 LMKnob::~LMKnob()
 {
 	slider.setLookAndFeel(nullptr);
 	ParamLinker = nullptr;
+	valueInputWindow = nullptr;
 }
 
 void LMKnob::paint(juce::Graphics& g)
 {
-	/*
-	auto centreX = getWidth() / 2;//ÉèÖÃ×ø±êÔ­µã
-	auto centreY = getHeight() / 2;
-	g.setOrigin(-centreX, -centreY);*/
-
-	/*
-	g.setColour(juce::Colour(0x00, 0xff, 0x00));//Åö×²Ïä
-	g.drawLine(0, 0, 64, 0);
-	g.drawLine(0, 0, 0, 80);
-	g.drawLine(64, 80, 64, 0);
-	g.drawLine(64, 80, 0, 80);*/
+	// Your existing paint implementation
 }
 
 void LMKnob::ParamLink(juce::AudioProcessorValueTreeState& stateToUse, const juce::String& parameterID)
 {
 	ParamLinker = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(stateToUse, parameterID, slider);
+	updateValueDisplay(); // Update display after linking
 }
 
-void LMKnob::setText(const juce::String& KnobText)
+void LMKnob::setText(const juce::String& KnobText, const juce::String& unit)
 {
 	label.setText(KnobText, juce::dontSendNotification);
 	text = KnobText;
+	unitText = unit;
 }
 
 void LMKnob::resized()
 {
 	slider.setBounds(32 - 56 / 2, 32 - 56 / 2, 56, 56);
 	label.setBounds(-32, 48 - 4, 64 + 64, 16);
+	valueLabel.setBounds(-32, -4, 64 + 64, 16); // Position below the main label
+	valueLabel.setVisible(false);  // Initially hidden
 }
 
 void LMKnob::setPos(int x, int y)
 {
-	setBounds(x - 32, y - 32, 64, 64);
+	setBounds(x - 32, y - 32, 64, 80); // Increase height to accommodate value label
+}
+
+void LMKnob::updateValueDisplay()
+{
+	double value = slider.getValue();
+	juce::String valueText;
+
+	// Format the value based on range (you can customize this)
+	if (std::abs(value) >= 1000.0)
+	{
+		valueText = juce::String(value, 0); // No decimal places for large values
+	}
+	else if (std::abs(value) >= 10.0)
+	{
+		valueText = juce::String(value, 1); // 1 decimal place
+	}
+	else
+	{
+		valueText = juce::String(value, 2); // 2 decimal places
+	}
+
+	valueLabel.setText(valueText + unitText, juce::dontSendNotification);
+}
+
+void LMKnob::labelClicked()
+{
+	showValueInputDialog();
+}
+
+void LMKnob::showValueInputDialog()
+{
+	if (valueInputWindow != nullptr)
+		return; // Dialog already open
+
+	valueInputWindow = std::make_unique<juce::AlertWindow>("Enter Value",
+		paramDescription,
+		juce::AlertWindow::NoIcon);
+	//description
+	valueInputWindow->addTextBlock("Enter new value for " + text + ":");
+	valueInputWindow->addTextEditor("value", juce::String(slider.getValue()), "Value:");
+	valueInputWindow->addButton("OK", 1, juce::KeyPress(juce::KeyPress::returnKey));
+	valueInputWindow->addButton("Cancel", 0, juce::KeyPress(juce::KeyPress::escapeKey));
+
+	valueInputWindow->enterModalState(true,
+		juce::ModalCallbackFunction::create([this](int result)
+			{
+				if (result == 1) // OK button pressed
+				{
+					juce::String inputText = valueInputWindow->getTextEditorContents("value");
+					double newValue = inputText.getDoubleValue();
+
+					// Clamp to slider range
+					newValue = juce::jlimit(slider.getMinimum(), slider.getMaximum(), newValue);
+					slider.setValue(newValue, juce::sendNotificationSync);
+				}
+				valueInputWindow = nullptr;
+			}));
+}
+void LMKnob::showDescription()
+{
+	if (paramDescription.isEmpty())
+		return; // No description to show
+	juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::NoIcon, "Parameter Description:",
+		paramDescription, "OK");
+}
+
+void LMKnob::showRightClickMenu(const juce::Point<int>& position)
+{
+	juce::PopupMenu menu;
+	menu.addItem(1, "Type Value");
+	menu.addItem(2, "Description");
+	menu.showMenuAsync(juce::PopupMenu::Options().withTargetComponent(this)
+		.withTargetScreenArea(juce::Rectangle<int>(position, position)),
+		[this](int result)
+		{
+			if (result == 1) // "Type Value" selected
+			{
+				showValueInputDialog();
+			}
+			if (result == 2)
+			{
+				showDescription();
+			}
+		});
+}
+void LMKnob::showValueLabel()
+{
+	valueVisible = true;
+	valueLabel.setVisible(true);
+}
+
+
+void LMKnob::hideValueLabel()
+{
+	valueVisible = false;
+	valueLabel.setVisible(false);
 }
 
 LMButton::LMButton()
@@ -234,7 +404,7 @@ void LMButton::setName(juce::String ButtonName)
 void LMButton::resized()
 {
 	int w = getBounds().getWidth(), h = getBounds().getHeight();
-	button.setBounds(0,0,w,h);
+	button.setBounds(0, 0, w, h);
 }
 
 /*
