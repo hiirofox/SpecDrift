@@ -20,8 +20,8 @@ LModelAudioProcessorEditor::LModelAudioProcessorEditor(LModelAudioProcessor& p)
 	setOpaque(false);  // 允许在边框外面绘制
 
 	//setResizeLimits(64 * 11, 64 * 5, 10000, 10000); // 设置最小宽高为300x200，最大宽高为800x600
-	setSize(64 * 5, 64 * 5);
-	setResizeLimits(64 * 5, 64 * 5, 64 * 13, 64 * 8);
+	setSize(64 * 7, 64 * 5);
+	setResizeLimits(64 * 7, 64 * 5, 64 * 13, 64 * 8);
 
 	//constrainer.setFixedAspectRatio(11.0 / 4.0);  // 设置为16:9比例
 	//setConstrainer(&constrainer);  // 绑定窗口的宽高限制
@@ -38,6 +38,13 @@ LModelAudioProcessorEditor::LModelAudioProcessorEditor(LModelAudioProcessor& p)
 	K_POW.setText("pow");
 	K_POW.ParamLink(audioProcessor.GetParams(), "pow");
 	addAndMakeVisible(K_POW);
+	K_BBR.setText("barberate");
+	K_BBR.ParamLink(audioProcessor.GetParams(), "bbr");
+	addAndMakeVisible(K_BBR);
+	K_DRY.setText("dry");
+	K_DRY.ParamLink(audioProcessor.GetParams(), "dry");
+	addAndMakeVisible(K_DRY);
+
 
 	addAndMakeVisible(enveUI);
 
@@ -75,6 +82,8 @@ void LModelAudioProcessorEditor::resized()
 	K_RT.setBounds(32 + 64 * 1, h - 32 - 64, 64, 64);
 	K_FB.setBounds(32 + 64 * 2, h - 32 - 64, 64, 64);
 	K_POW.setBounds(32 + 64 * 3, h - 32 - 64, 64, 64);
+	K_BBR.setBounds(32 + 64 * 4, h - 32 - 64, 64, 64);
+	K_DRY.setBounds(32 + 64 * 5, h - 32 - 64, 64, 64);
 }
 
 void LModelAudioProcessorEditor::timerCallback()

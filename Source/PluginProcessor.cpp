@@ -34,6 +34,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout LModelAudioProcessor::create
 	layout.add(std::make_unique<juce::AudioParameterFloat>("rt", "rt", 0, 1, 0.5));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("fb", "fb", -1, 1, 0));
 	layout.add(std::make_unique<juce::AudioParameterFloat>("pow", "pow", -8, 8, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("bbr", "bbr", -1, 1, 0));
+	layout.add(std::make_unique<juce::AudioParameterFloat>("dry", "dry", 0, 1, 0));
 	return layout;
 }
 
@@ -173,12 +175,17 @@ void LModelAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
 	float rt = *Params.getRawParameterValue("rt");
 	float fb = *Params.getRawParameterValue("fb");
 	float pw = *Params.getRawParameterValue("pow");
+	float bbr = *Params.getRawParameterValue("bbr");
+	float dry = *Params.getRawParameterValue("dry");
+
 
 	lt = (expf(lt * 8.0) - 1.0) / (expf(8.0) - 1.0);
 	rt = (expf(rt * 8.0) - 1.0) / (expf(8.0) - 1.0);
 
-	stftl.SetDelay(lt, rt, 0, fb, pw);
-	stftr.SetDelay(lt, rt, 0, fb, pw);
+	bbr = bbr * 0.01;
+
+	stftl.SetDelay(lt, rt, 0, fb, pw, bbr, dry);
+	stftr.SetDelay(lt, rt, 0, fb, pw, bbr, dry);
 
 	stftl.ProcessBlock(recbufl, wavbufl, numSamples);
 	stftr.ProcessBlock(recbufr, wavbufr, numSamples);

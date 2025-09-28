@@ -1,5 +1,6 @@
 #pragma once
 
+#include <complex>
 #include "stft.h"
 #include "envefunc.h"
 
@@ -298,6 +299,8 @@ public:
 	float delayre[NumGroups][FFTLen] = { 0 };
 	float delayim[NumGroups][FFTLen] = { 0 };
 	int dlypos = 0;
+	float barber_t = 0;
+	float dry = 0;
 	void ProcessSTFT(std::vector<float>& inre, std::vector<float>& inim,
 		std::vector<float>& outre, std::vector<float>& outim,
 		int numBins, int hopSize)
@@ -314,60 +317,62 @@ public:
 			float t = t1 - inGroup * hopSize;
 
 			float phase = 2.0f * M_PI * t * i / FFTLen;
-			float mulre = fs.fast_cos(phase);
-			float mulim = fs.fast_sin(phase);
-			float rev = inre[i] * mulre - inim[i] * mulim;
-			float imv = inre[i] * mulim + inim[i] * mulre;
+			phase += 2.0 * M_PI * barber_t;//barberpole!
 
 			float lastre = delayre[dlypos][i];
 			float lastim = delayim[dlypos][i];
 			delayre[dlypos][i] = 0;
 			delayim[dlypos][i] = 0;
 
-			float lvre = lastre * mulre - lastim * mulim;
-			float lvim = lastre * mulim + lastim * mulre;
 
 			if (inGroup >= 1)
 			{
-				delayre[(dlypos + inGroup) % NumGroups][i] = rev + lvre * fb;
-				delayim[(dlypos + inGroup) % NumGroups][i] = imv + lvim * fb;
+				int pos = (dlypos + inGroup) % NumGroups;
+
+				float mulre = fs.fast_cos(phase);
+				float mulim = fs.fast_sin(phase);
+
+				float are = inre[i] + lastre * fb;
+				float aim = inim[i] + lastim * fb;
+				float re = are * mulre - aim * mulim;
+				float im = are * mulim + aim * mulre;
+				delayre[pos][i] = re;
+				delayim[pos][i] = im;
+
+				outre[i] = lastre;
+				outim[i] = lastim;
 			}
 			else
 			{
-				//处理小于hopsize的延迟和反馈
-				//我觉得最终还会用到dlypos+1的延迟，毕竟反馈是无限冲激响应的
+				int pos = (dlypos + 1) % NumGroups;
 
-				float weight = t / hopSize;
-				float direct_re = rev * (1.0f - weight);
-				float direct_im = imv * (1.0f - weight);
-				float delayed_re = rev * weight;
-				float delayed_im = imv * weight;
-				float fb_re = lvre * fb;
-				float fb_im = lvim * fb;
-				float current_fb_re = fb_re * (1.0f - weight);
-				float current_fb_im = fb_im * (1.0f - weight);
-				float next_fb_re = fb_re * weight;
-				float next_fb_im = fb_im * weight;
-				lastre = direct_re + current_fb_re;
-				lastim = direct_im + current_fb_im;
-				int next_pos = (dlypos + 1) % NumGroups;
-				delayre[next_pos][i] += delayed_re + next_fb_re;
-				delayim[next_pos][i] += delayed_im + next_fb_im;
+				std::complex<float> zn{ fs.fast_cos(phase) , fs.fast_sin(phase) };
+				auto h = zn / ((std::complex<float>)1.0 - zn * fb);
+				std::complex<float> x{ inre[i],inim[i] };
+				auto y = x * h;
+
+				outre[i] = y.real();
+				outim[i] = y.imag();
 			}
 
-			outre[i] = lastre;
-			outim[i] = lastim;
+			outre[i] += inre[i] * dry;
+			outim[i] += inim[i] * dry;
+
 		}
 		dlypos++;
 		if (dlypos >= NumGroups) dlypos = 0;
 	}
 
-	void SetDelay(float ldelay, float rdelay, float t0, float fb, float pw)
+	void SetDelay(float ldelay, float rdelay, float t0, float fb, float pw, float bbr, float dry)
 	{
 		this->ldelay = ldelay * hopSize * NumGroups;
 		this->rdelay = rdelay * hopSize * NumGroups;
 		this->t0 = t0 * hopSize;
 		this->fb = fb;
 		this->pw = pw;
+		this->barber_t += bbr;
+		while (barber_t > 1.0)barber_t -= 1.0;
+		while (barber_t < 0.0)barber_t += 1.0;
+		this->dry = dry;
 	}
 };
