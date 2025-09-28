@@ -3558,10 +3558,16 @@
     <ClInclude Include="..\..\Source\dsp\EnveFunc.h">
       <Filter>SpecDrift\Source\dsp</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\dsp\specWaterFall.h">
+      <Filter>SpecDrift\Source\dsp</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\ui\LM_slider.h">
       <Filter>SpecDrift\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\ui\EnveUI.h">
+      <Filter>SpecDrift\Source\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\ui\specWaterFallUI.h">
       <Filter>SpecDrift\Source\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PluginProcessor.h">

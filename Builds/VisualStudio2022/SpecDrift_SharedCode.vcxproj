@@ -2838,8 +2838,10 @@
     <ClInclude Include="..\..\Source\dsp\stft.h"/>
     <ClInclude Include="..\..\Source\dsp\specDrift.h"/>
     <ClInclude Include="..\..\Source\dsp\EnveFunc.h"/>
+    <ClInclude Include="..\..\Source\dsp\specWaterFall.h"/>
     <ClInclude Include="..\..\Source\ui\LM_slider.h"/>
     <ClInclude Include="..\..\Source\ui\EnveUI.h"/>
+    <ClInclude Include="..\..\Source\ui\specWaterFallUI.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
     <ClInclude Include="..\..\Source\PluginEditor.h"/>
     <ClInclude Include="C:\JUCE\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>

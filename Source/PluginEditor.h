@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 #include "ui/LM_slider.h"
 #include "ui/EnveUI.h"
+#include "ui/specWaterFallUI.h"
 
 //==============================================================================
 /**
@@ -34,7 +35,7 @@ private:
 	LMKnob K_LT, K_RT, K_FB, K_POW;
 	LMKnob K_BBR, K_DRY;
 	EnveUI enveUI{ &audioProcessor.enveFunc };
-
+	SpecWaterFallUI swfUI{ audioProcessor.swf };
 	juce::ComponentBoundsConstrainer constrainer;  // 用于设置宽高比例
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LModelAudioProcessorEditor)
 };

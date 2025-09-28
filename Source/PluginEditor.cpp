@@ -26,26 +26,27 @@ LModelAudioProcessorEditor::LModelAudioProcessorEditor(LModelAudioProcessor& p)
 	//constrainer.setFixedAspectRatio(11.0 / 4.0);  // 设置为16:9比例
 	//setConstrainer(&constrainer);  // 绑定窗口的宽高限制
 
-	K_LT.setText("minT");
+	K_LT.setText("minT", "");
 	K_LT.ParamLink(audioProcessor.GetParams(), "lt");
 	addAndMakeVisible(K_LT);
-	K_RT.setText("maxT");
+	K_RT.setText("maxT", "");
 	K_RT.ParamLink(audioProcessor.GetParams(), "rt");
 	addAndMakeVisible(K_RT);
-	K_FB.setText("feedback");
+	K_FB.setText("feedback", "");
 	K_FB.ParamLink(audioProcessor.GetParams(), "fb");
 	addAndMakeVisible(K_FB);
-	K_POW.setText("pow");
+	K_POW.setText("pow", "");
 	K_POW.ParamLink(audioProcessor.GetParams(), "pow");
 	addAndMakeVisible(K_POW);
-	K_BBR.setText("barberate");
+	K_BBR.setText("barberate", "");
 	K_BBR.ParamLink(audioProcessor.GetParams(), "bbr");
 	addAndMakeVisible(K_BBR);
-	K_DRY.setText("dry");
+	K_DRY.setText("dry", "");
 	K_DRY.ParamLink(audioProcessor.GetParams(), "dry");
 	addAndMakeVisible(K_DRY);
 
 
+	addAndMakeVisible(swfUI);
 	addAndMakeVisible(enveUI);
 
 	startTimerHz(30);
@@ -76,6 +77,7 @@ void LModelAudioProcessorEditor::resized()
 	int x = bound.getX(), y = bound.getY(), w = bound.getWidth(), h = bound.getHeight();
 	auto convXY = juce::Rectangle<int>::leftTopRightBottom;
 
+	swfUI.setBounds(32, 32, w - 64, h - 64 - 64 - 24);
 	enveUI.setBounds(32, 32, w - 64, h - 64 - 64 - 24);
 
 	K_LT.setBounds(32 + 64 * 0, h - 32 - 64, 64, 64);

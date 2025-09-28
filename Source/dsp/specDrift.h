@@ -201,11 +201,11 @@ public:
 class SpecDrift2
 {
 public:
-	constexpr static int FFTLen = 1024;
+	constexpr static int FFTLen = 512;
 	constexpr static int NumGroups = 2048;
 private:
 	int windowSize = FFTLen / 1;
-	int hopSize = FFTLen / 16;
+	int hopSize = FFTLen / 8;
 
 	float window[FFTLen];
 	void UpdateWindow()

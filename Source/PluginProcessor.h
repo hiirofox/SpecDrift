@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "dsp/specDrift.h"
 #include "dsp/EnveFunc.h"
+#include "dsp/specWaterFall.h"
 //==============================================================================
 /**
 */
@@ -63,6 +64,7 @@ public:
 	}
 
 	EnveFunc enveFunc;
+	SpecWaterFall swf;
 
 private:
 	//Synth Param

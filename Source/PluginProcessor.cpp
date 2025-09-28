@@ -194,6 +194,8 @@ void LModelAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::
 
 	stftl.ProcessBlock(recbufl, wavbufl, numSamples);
 	stftr.ProcessBlock(recbufr, wavbufr, numSamples);
+
+	swf.ProcessBlockIn(wavbufl, numSamples);
 }
 
 //==============================================================================
